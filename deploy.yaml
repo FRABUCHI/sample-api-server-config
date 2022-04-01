@@ -12,10 +12,8 @@ phases:
     commands:
       - echo "=================================================================[*] S3 Upload================================================================="
       - DEPLOY_DATE=`date "+%Y-%m-%d_%H:%M:%S"`
-      - |
-        aws s3 cp $temp.zip s3://$BUCKET_NAME/$PROJECT_NAME/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip \
-        --acl public-read-write \
-        --region $ECR_REGION
+      - KEY_NAME=`aws s3 ls s3://$PROJECT_NAME/$PROJECT_NAME/ConfigArti/ |  sort | tail -n 1 | awk '{print $4}'`
+      - aws s3 cp s3://$PROJECT_NAME/$PROJECT_NAME/ConfigArti/$KEY_NAME s3://$PROJECT_NAME/$PROJECT_NAME/BeanstalkDeploy/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip 
   post_build:
     commands:
       - echo "=================================================================[*] Deploy to Beanstalk================================================================="
@@ -24,7 +22,7 @@ phases:
         --region $ECR_REGION \
         --application-name $PROJECT_NAME \
         --version-label $CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE \
-        --source-bundle S3Bucket='$BUCKET_NAME',S3Key='$PROJECT_NAME/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip'
+        --source-bundle S3Bucket='$BUCKET_NAME',S3Key='s3://$PROJECT_NAME/$PROJECT_NAME/BeanstalkDeploy/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip'
       - |
         aws elasticbeanstalk update-environment \
         --region $ECR_REGION \
