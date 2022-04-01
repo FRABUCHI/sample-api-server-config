@@ -20,7 +20,7 @@ phases:
       - |
         aws elasticbeanstalk create-application-version \
         --region $ECR_REGION \
-        --application-name $PROJECT_NAME \
+        --application-name $BUCKET_NAME \
         --version-label $CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE \
         --source-bundle S3Bucket='$BUCKET_NAME',S3Key='s3://$BUCKET_NAME/$BUCKET_NAME/BeanstalkDeploy/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip'
       - |
