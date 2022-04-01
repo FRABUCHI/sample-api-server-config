@@ -1,0 +1,32 @@
+version: 0.2
+
+phases:
+  install:
+    runtime-versions:
+      docker: 18
+  pre_build:
+    commands:
+      - echo "=================================================================[*] Zip================================================================="
+      - zip temp.zip  -r * .[^.]*
+  build:
+    commands:
+      - echo "=================================================================[*] S3 Upload================================================================="
+      DEPLOY_DATE=`date "+%Y-%m-%d_%H:%M:%S"`
+      - |
+        aws s3 cp $temp.zip s3://$BUCKET_NAME/$PROJECT_NAME/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip \
+        --acl public-read-write \
+        --region $ECR_REGION
+  post_build:
+    commands:
+      - echo "=================================================================[*] Deploy to Beanstalk================================================================="
+      - |
+        aws elasticbeanstalk create-application-version \
+        --region $ECR_REGION \
+        --application-name $PROJECT_NAME \
+        --version-label $CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE \
+        --source-bundle S3Bucket='$BUCKET_NAME',S3Key='$PROJECT_NAME/$CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE.zip'
+      - |
+        aws elasticbeanstalk update-environment \
+        --region $ECR_REGION \
+        --environment-name $PROJECT_NAME-env \
+        --version-label $CODEBUILD_SOURCE_VERSION-$DEPLOY_DATE
