@@ -22,7 +22,7 @@ phases:
         --region $ECR_REGION \
         --application-name $BUCKET_NAME \
         --version-label test-$DEPLOY_DATE \
-        --source-bundle S3Bucket='$BUCKET_NAME',S3Key='$BUCKET_NAME/$BUCKET_NAME/BeanstalkDeploy/test-$DEPLOY_DATE.zip'
+        --source-bundle S3Bucket='$BUCKET_NAME',S3Key='sample-api-server/BeanstalkDeploy/test-2022-04-01_14:59:28.zip'
       - |
         aws elasticbeanstalk update-environment \
         --region $ECR_REGION \
