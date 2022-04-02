@@ -22,7 +22,7 @@ phases:
       - |
         aws elasticbeanstalk create-application-version \
         --region $ECR_REGION \
-        --application-name $PROJECT_NAME \
+        --application-name $ENV-$PROJECT_NAME \
         --version-label $ENV-$PROJECT_NAME-$DEPLOY_DATE \
         --source-bundle S3Bucket=$ENV-$PIPELINE_NAME,S3Key=$PROJECT_NAME/$ENV-$PROJECT_NAME-$DEPLOY_DATE.zip
       - |
