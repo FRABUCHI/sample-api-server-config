@@ -7,33 +7,24 @@ phases:
   pre_build:
     commands:
       - echo "=================================================================[*] Zip================================================================="
-      # - zip temp.zip  -r * .[^.]*
+      - zip temp.zip  -r * .[^.]*
   build:
     commands:
       - echo "=================================================================[*] S3 Upload================================================================="
       - DEPLOY_DATE=`date "+%Y-%m-%d_%H:%M:%S"`
-      - KEY_NAME=`aws s3 ls s3://$BUCKET_NAME/$BUCKET_NAME/ConfigArti/ |  sort | tail -n 1 | awk '{print $4}'`
-      - aws s3 cp s3://$BUCKET_NAME/$BUCKET_NAME/ConfigArti/$KEY_NAME s3://$BUCKET_NAME/BeanstalkDeploy/$BUCKET_NAME-$DEPLOY_DATE.zip 
+      - KEY_NAME=`aws s3 ls s3://$ENV-$PIPELINE_NAME/$ENV-$PIPELINE_NAME/ConfigArti/ |  sort | tail -n 1 | awk '{print $4}'`
+      - aws s3 cp s3://$ENV-$PIPELINE_NAME/$ENV-$PIPELINE_NAME/ConfigArti/$KEY_NAME s3://$ENV-$PIPELINE_NAME/$PROJECT_NAME/$ENV-$PROJECT_NAME-$DEPLOY_DATE.zip 
   post_build:
     commands:
       - echo "=================================================================[*] Deploy to Beanstalk================================================================="
       - |
         aws elasticbeanstalk create-application-version \
         --region $ECR_REGION \
-        --application-name $BUCKET_NAME \
-        --version-label $BUCKET_NAME-$DEPLOY_DATE \
-        --source-bundle S3Bucket=$BUCKET_NAME,S3Key=BeanstalkDeploy/$BUCKET_NAME-$DEPLOY_DATE.zip
+        --application-name $PROJECT_NAME \
+        --version-label $ENV-$PROJECT_NAME-$DEPLOY_DATE \
+        --source-bundle S3Bucket=$ENV-$PIPELINE_NAME,S3Key=$PROJECT_NAME/$ENV-$PROJECT_NAME-$DEPLOY_DATE.zip
       - |
         aws elasticbeanstalk update-environment \
         --region $ECR_REGION \
-        --environment-name $BUCKET_NAME-env \
-        --version-label $BUCKET_NAME-$DEPLOY_DATE
-# artifacts:
-#   files:
-#     - Dockerrun.aws.json
-#     - .ebextensions/**/*
-# eb_codebuild_settings:
-#   CodeBuildServiceRole: sample-api-beanstalk-service-role
-#   ComputeType: BUILD_GENERAL1_SMALL
-#   Image: aws/codebuild/standard:4.0
-#   Timeout: 60
+        --environment-name $ENV-$PROJECT_NAME-env \
+        --version-label $ENV-$PROJECT_NAME-$DEPLOY_DATE
