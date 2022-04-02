@@ -12,8 +12,10 @@ phases:
     commands:
       - echo "=================================================================[*] S3 Upload================================================================="
       - DEPLOY_DATE=`date "+%Y-%m-%d_%H:%M:%S"`
-      - KEY_NAME=`aws s3 ls s3://$ENV-$PIPELINE_NAME/$ENV-$PIPELINE_NAME/ConfigArti/ |  sort | tail -n 1 | awk '{print $4}'`
-      - aws s3 cp s3://$ENV-$PIPELINE_NAME/$ENV-$PIPELINE_NAME/ConfigArti/$KEY_NAME s3://$ENV-$PIPELINE_NAME/$PROJECT_NAME/$ENV-$PROJECT_NAME-$DEPLOY_DATE.zip 
+      # - KEY_NAME=`aws s3 ls s3://$ENV-$PIPELINE_NAME/$ENV-$PIPELINE_NAME/ConfigArti/ |  sort | tail -n 1 | awk '{print $4}'`
+      # - aws s3 cp s3://$ENV-$PIPELINE_NAME/$ENV-$PIPELINE_NAME/ConfigArti/$KEY_NAME s3://$ENV-$PIPELINE_NAME/$PROJECT_NAME/$ENV-$PROJECT_NAME-$DEPLOY_DATE.zip 
+      - KEY_NAME=`aws s3 ls s3://dev-sample-api-server-pipl/dev-sample-api-serve/ConfigArti/ |  sort | tail -n 1 | awk '{print $4}'`
+      - aws s3 cp s3://dev-sample-api-server-pipl/dev-sample-api-serve/ConfigArti/$KEY_NAME s3://$ENV-$PIPELINE_NAME/$PROJECT_NAME/$ENV-$PROJECT_NAME-$DEPLOY_DATE.zip 
   post_build:
     commands:
       - echo "=================================================================[*] Deploy to Beanstalk================================================================="
